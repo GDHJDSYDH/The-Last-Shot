@@ -1,0 +1,18 @@
+# Local temporary & test files (NEVER commit to repository)
+Temp/
+Temp/*
+
+# Dependencies & build output
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*

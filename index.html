@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b0c10" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>终之枪弹 — The Last Shot</title>
+    <link rel="icon" type="image/png" href="./assets/images/revolver_ui_btn.png" />
+  </head>
+  <body>
+    <div id="app" class="app-root">
+      <!-- Title / Cover Screen -->
+      <section id="title-screen" class="screen title-screen active">
+        <div class="title-bg" id="title-bg" style="background-image: url('./assets/images/cover.png')"></div>
+        <div class="title-vignette"></div>
+        <div class="title-content">
+          <div class="title-badge">NOIR PSYCHOLOGICAL DUEL</div>
+          <h1 class="game-title">
+            <span class="title-zh">终之枪弹</span>
+            <span class="title-en">THE LAST SHOT</span>
+          </h1>
+          <p class="title-tagline">3 秒读心 · 3 秒拔枪 · 六弹终结破盾</p>
+
+          <div class="mode-cards">
+            <button id="btn-mode-1v1" class="mode-card" type="button">
+              <span class="mode-tag">DUEL</span>
+              <span class="mode-name">1v1 双人对决</span>
+              <span class="mode-desc">纯粹的心理博弈，直面桌面另一端的致命枪手</span>
+            </button>
+            <button id="btn-mode-1v1v1" class="mode-card mode-card-chaos" type="button">
+              <span class="mode-tag">TRIPLE STANDOFF</span>
+              <span class="mode-name">1v1v1 三人混战</span>
+              <span class="mode-desc">三方猜忌、借刀杀人、淘汰至最后一人</span>
+            </button>
+          </div>
+
+          <div class="title-actions">
+            <button id="btn-rules" class="ghost-btn" type="button">玩法与规则</button>
+            <button id="btn-title-audio" class="ghost-btn" type="button">🔊 音乐：开</button>
+          </div>
+
+          <footer class="title-footer">
+            <span>CC BY-NC 4.0 · 电脑与手机端适配 · 快捷键 1/2/3 决策</span>
+          </footer>
+        </div>
+      </section>
+
+      <!-- Rules Modal -->
+      <div id="rules-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2>规则速览 · THE RULES</h2>
+            <button id="btn-close-rules" class="icon-close" type="button" aria-label="关闭">✕</button>
+          </div>
+          <div class="modal-body">
+            <ul>
+              <li><strong>基础数值</strong>：每人 <strong>5 颗心</strong> 血量，初始 0 发子弹，弹巢上限 <strong>6 发</strong>。</li>
+              <li><strong>3 秒心理决策</strong>：每回合 3 秒内从「装子弹 / 开火 / 防御」中选定一项，<strong>选定即锁定不可反悔</strong>（其余两项置灰）。超时未选视为弃权空过。</li>
+              <li><strong>3 秒瞄准开火</strong>：若选择了开火，3 秒决策结束后会出现左轮与<strong>瞄准准星</strong>，必须在 <strong>3 秒内瞄准对手点击开火</strong>，否则视为弃权进入下一回合。</li>
+              <li><strong>防暴盾防御</strong>：格挡普通子弹（0 伤），第一人称视角可透过盾牌上方长方形观察口直视对面战况。</li>
+              <li><strong>超级射击（Super Shot）</strong>：攒满 <strong>6 发子弹</strong> 时触发！造成 <strong>2 颗心暴击伤害</strong>，直接<strong>穿透并击碎防暴盾</strong>（令目标下 1 回合无法使用防御），压制普通射击，发射后子弹归零。</li>
+              <li><strong>1v1v1 三人混战</strong>：你的状态条位于屏幕正上方中央；两位 AI 会各自独立选靶互攻或围攻你，坚持到最后即可获胜！</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Battle Screen -->
+      <section id="battle-screen" class="screen battle-screen">
+        <!-- Layered Canvases -->
+        <canvas id="scene-canvas" class="game-canvas"></canvas>
+        <canvas id="vfx-canvas" class="game-canvas vfx-canvas"></canvas>
+
+        <!-- First-Person Riot Shield Overlay (visible when player defends) -->
+        <div id="fp-shield-layer" class="fp-shield-layer hidden" aria-hidden="true">
+          <img id="fp-shield-img" class="fp-shield-img" src="./assets/images/shield_fp.png" alt="防暴盾视角" />
+          <div id="fp-shield-crack" class="fp-shield-crack"></div>
+          <div class="fp-shield-badge">SHIELD UP · 防暴盾格挡中</div>
+        </div>
+
+        <!-- First-Person Revolver Aiming Layer (Gun ONLY, no hand) -->
+        <div id="fp-gun-layer" class="fp-gun-layer hidden" aria-hidden="true">
+          <img id="fp-gun-img" class="fp-gun-img" src="./assets/images/revolver_aim_forward.png" alt="左轮瞄准" />
+        </div>
+
+        <!-- Aiming Reticle Overlay (interactive during 3s aim phase) -->
+        <div id="aim-overlay" class="aim-overlay hidden">
+          <div id="aim-banner" class="aim-banner">
+            <span id="aim-banner-text">瞄准对手并点击开火！</span>
+            <span id="aim-countdown" class="aim-countdown">3.0s</span>
+          </div>
+          <div id="reticle" class="reticle">
+            <div class="reticle-ring"></div>
+            <div class="reticle-cross-h"></div>
+            <div class="reticle-cross-v"></div>
+            <div class="reticle-dot"></div>
+          </div>
+          <div class="aim-hint" id="aim-hint">点击对手身体直接击发（手机端支持拖动准星或直接点按目标）</div>
+        </div>
+
+        <!-- Top HUD Bar -->
+        <header id="hud-top" class="hud-top mode-1v1">
+          <!-- Opponent Left (in 1v1v1) / Player (in 1v1) -->
+          <div id="hud-slot-left" class="hud-card"></div>
+          <!-- Player Center (only shown in 1v1v1) -->
+          <div id="hud-slot-center" class="hud-card hud-card-center hidden"></div>
+          <!-- Opponent Right -->
+          <div id="hud-slot-right" class="hud-card"></div>
+        </header>
+
+        <!-- Quick Utility Controls (Audio + Menu) -->
+        <div class="battle-toolbar">
+          <button id="btn-battle-audio" class="tool-btn" type="button" title="开关声音">🔊</button>
+          <button id="btn-battle-menu" class="tool-btn" type="button" title="返回标题">⌂</button>
+        </div>
+
+        <!-- Center Turn / Timer / Phase Callout -->
+        <div id="phase-hud" class="phase-hud">
+          <div class="round-pill" id="round-pill">ROUND 1</div>
+          <div class="timer-wrap" id="timer-wrap">
+            <div class="timer-bar-track">
+              <div class="timer-bar-fill" id="timer-bar-fill"></div>
+            </div>
+            <div class="timer-text" id="timer-text">3.0s</div>
+          </div>
+          <div class="phase-status" id="phase-status">选择你的行动（锁定后不可反悔）</div>
+        </div>
+
+        <!-- Floating Battle Log / Dramatic Callout -->
+        <div id="callout-banner" class="callout-banner hidden"></div>
+
+        <!-- Bottom Decision Controls -->
+        <div id="action-dock" class="action-dock">
+          <button id="btn-act-reload" class="action-btn btn-reload" type="button" data-action="reload">
+            <div class="action-key">1</div>
+            <div class="action-icon-wrap">
+              <img class="action-icon" src="./assets/images/ui_reload.png" alt="装子弹" />
+            </div>
+            <div class="action-label">装子弹</div>
+            <div class="action-sub" id="sub-reload">弹药 +1</div>
+          </button>
+
+          <button id="btn-act-fire" class="action-btn btn-fire" type="button" data-action="fire">
+            <div class="action-key">2</div>
+            <div class="action-icon-wrap">
+              <img class="action-icon" id="icon-fire" src="./assets/images/revolver_ui_btn.png" alt="开火" />
+            </div>
+            <div class="action-label" id="label-fire">开火</div>
+            <div class="action-sub" id="sub-fire">需 1 发子弹</div>
+          </button>
+
+          <button id="btn-act-defend" class="action-btn btn-defend" type="button" data-action="defend">
+            <div class="action-key">3</div>
+            <div class="action-icon-wrap">
+              <img class="action-icon" src="./assets/images/ui_shield.png" alt="防御" />
+            </div>
+            <div class="action-label">防御</div>
+            <div class="action-sub" id="sub-defend">防暴盾格挡</div>
+          </button>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="result-overlay" class="result-overlay hidden">
+          <div class="result-card">
+            <div class="result-kicker" id="result-kicker">DUEL CONCLUDED</div>
+            <h2 class="result-title" id="result-title">胜利</h2>
+            <p class="result-desc" id="result-desc"></p>
+            <div class="result-stats" id="result-stats"></div>
+            <div class="result-actions">
+              <button id="btn-rematch" class="primary-btn" type="button">再来一局</button>
+              <button id="btn-back-title" class="ghost-btn" type="button">返回标题</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
