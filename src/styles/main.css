@@ -437,39 +437,41 @@ body {
   color: #7dd3fc;
 }
 
-/* ==================== FIRST-PERSON FLOATING REVOLVER (NO HAND) ==================== */
+/* ==================== FIRST-PERSON FLOATING REVOLVER (CENTER-BOTTOM, NO HAND) ==================== */
 .fp-gun-layer {
   position: absolute;
-  right: max(4vw, 18px);
-  bottom: 105px;
+  left: 50%;
+  bottom: calc(44px + var(--safe-bottom));
   z-index: 14;
-  width: clamp(160px, 26vw, 310px);
+  height: clamp(190px, 34vh, 330px);
+  width: auto;
   pointer-events: none;
-  transform-origin: 65% 85%;
+  transform: translateX(-50%);
+  transform-origin: 50% 88%;
   transition: transform 0.08s ease-out;
 }
 
 .fp-gun-img {
-  width: 100%;
-  height: auto;
+  height: 100%;
+  width: auto;
   display: block;
-  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.82));
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.88));
 }
 
 .fp-gun-layer.super-charged .fp-gun-img {
   filter:
     drop-shadow(0 0 18px rgba(251, 191, 36, 0.95))
-    drop-shadow(0 0 38px rgba(225, 29, 72, 0.8));
+    drop-shadow(0 0 38px rgba(225, 29, 72, 0.82));
 }
 
-.fp-gun-layer.recoil {
+.fp-gun-layer.recoil .fp-gun-img {
   animation: gunKick 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes gunKick {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  25% { transform: translate(14px, -36px) rotate(11deg) scale(1.08); }
-  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  0% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-34px) scale(1.1); }
+  100% { transform: translateY(0) scale(1); }
 }
 
 /* ==================== AIMING OVERLAY & RETICLE ==================== */
@@ -1183,9 +1185,10 @@ body {
   }
 
   .fp-gun-layer {
-    width: 46vw;
-    bottom: 84px;
-    right: 2vw;
+    height: clamp(168px, 30vh, 250px);
+    width: auto;
+    bottom: calc(42px + var(--safe-bottom));
+    left: 50%;
   }
 
   .fp-shield-badge {

@@ -424,7 +424,7 @@ class LastShotApp {
   }
 
   private handleResolveEvents(events: ResolveEvent[]): void {
-    const playerOriginX = this.width * 0.68;
+    const playerOriginX = this.width * 0.5;
     const playerOriginY = this.height * 0.78;
     const playerHitX = this.width * 0.5;
     const playerHitY = this.height * 0.55;
@@ -614,10 +614,10 @@ class LastShotApp {
     this.reticleEl.style.left = `${clientX}px`;
     this.reticleEl.style.top = `${clientY}px`;
 
-    // Subtle parallax tilt of floating first-person revolver toward aim point
+    // Subtle parallax tilt of centered floating first-person revolver toward aim point
     const nx = (clientX / Math.max(1, this.width) - 0.5) * 2;
     const ny = (clientY / Math.max(1, this.height) - 0.5) * 2;
-    this.fpGunLayer.style.transform = `translate(${nx * 24}px, ${ny * 14}px) rotate(${nx * 7}deg)`;
+    this.fpGunLayer.style.transform = `translateX(calc(-50% + ${nx * 26}px)) translateY(${ny * 14}px) rotate(${nx * 8}deg)`;
 
     this.updateHoveredTarget(clientX, clientY);
   }
@@ -652,6 +652,7 @@ class LastShotApp {
     this.fpShieldLayer.classList.add('hidden');
     this.fpGunLayer.classList.remove('hidden', 'recoil');
     this.fpGunLayer.classList.toggle('super-charged', isSuper);
+    this.fpGunLayer.style.transform = 'translateX(-50%)';
   }
 
   private triggerPlayerGunRecoil(): void {

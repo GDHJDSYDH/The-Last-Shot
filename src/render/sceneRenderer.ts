@@ -452,16 +452,18 @@ export class SceneRenderer {
       ctx.restore();
     } else if ((f.pose === 'aim_player' || f.pose === 'fire_player') && f.alive) {
       // Opponent pointing revolver straight at the player -> dramatic front barrel sprite!
-      const gunSize = (f.isSuperShot ? 132 : 112) * unit;
+      const gunH = (f.isSuperShot ? 164 : 138) * unit;
       const kick = f.recoil * 20 * unit;
       ctx.save();
-      ctx.translate(22 * unit, shoulderY + 20 * unit - kick);
+      ctx.translate(22 * unit, shoulderY + 24 * unit - kick);
       if (f.isSuperShot) {
         ctx.shadowColor = '#fbbf24';
         ctx.shadowBlur = 24;
       }
       if (this.isReady(this.revolverAimedImg)) {
-        ctx.drawImage(this.revolverAimedImg, -gunSize * 0.5, -gunSize * 0.5, gunSize, gunSize);
+        const aspect = this.revolverAimedImg.naturalWidth / Math.max(1, this.revolverAimedImg.naturalHeight);
+        const gunW = gunH * aspect;
+        ctx.drawImage(this.revolverAimedImg, -gunW * 0.5, -gunH * 0.5, gunW, gunH);
       } else {
         ctx.fillStyle = '#334155';
         ctx.beginPath();
@@ -474,29 +476,31 @@ export class SceneRenderer {
       }
       ctx.restore();
     } else if ((f.pose === 'aim_side' || f.pose === 'fire_side') && f.alive) {
-      // Opponent aiming sideways at the other AI in 1v1v1 -> side revolver sprite!
-      const gunW = 104 * unit;
-      const gunH = 74 * unit;
+      // Opponent aiming sideways at the other AI in 1v1v1 -> sleek side revolver sprite!
+      const gunW = (f.isSuperShot ? 148 : 130) * unit;
       ctx.save();
-      ctx.translate(82 * unit * sideDir, shoulderY + 6 * unit - f.recoil * 12 * unit);
+      ctx.translate(86 * unit * sideDir, shoulderY + 8 * unit - f.recoil * 12 * unit);
       ctx.scale(sideDir, 1);
       if (f.isSuperShot) {
         ctx.shadowColor = '#fbbf24';
         ctx.shadowBlur = 22;
       }
       if (this.isReady(this.revolverSideImg)) {
-        ctx.drawImage(this.revolverSideImg, -gunW * 0.4, -gunH * 0.5, gunW, gunH);
+        const aspect = this.revolverSideImg.naturalHeight / Math.max(1, this.revolverSideImg.naturalWidth);
+        const gunH = gunW * aspect;
+        ctx.drawImage(this.revolverSideImg, -gunW * 0.36, -gunH * 0.5, gunW, gunH);
       }
       ctx.restore();
     } else if (f.pose === 'reload' && f.alive) {
       // Show side revolver spinning slightly during reload!
-      const gunW = 86 * unit;
-      const gunH = 62 * unit;
+      const gunW = 112 * unit;
       const spin = (1 - f.reloadAnim) * Math.PI * 0.4 - 0.35;
       ctx.save();
       ctx.translate(8 * unit, shoulderY + 26 * unit);
       ctx.rotate(spin);
       if (this.isReady(this.revolverSideImg)) {
+        const aspect = this.revolverSideImg.naturalHeight / Math.max(1, this.revolverSideImg.naturalWidth);
+        const gunH = gunW * aspect;
         ctx.drawImage(this.revolverSideImg, -gunW * 0.5, -gunH * 0.5, gunW, gunH);
       }
       ctx.restore();

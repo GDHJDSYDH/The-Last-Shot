@@ -18,7 +18,7 @@ class SoundManager {
     this.titleAudio.volume = 0.42;
     this.titleAudio.preload = 'metadata';
 
-    this.battleAudio = new Audio('./assets/audio/Between_Ticks_and_Steel.mp3');
+    this.battleAudio = new Audio('./assets/audio/Battle_BGM.mp3');
     this.battleAudio.loop = true;
     this.battleAudio.volume = 0.46;
     this.battleAudio.preload = 'metadata';
